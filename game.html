@@ -1,118 +1,99 @@
-
-Now it’s time to go Crazy
-12:21 PM (0 minutes ago)
-to me
-
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Coin Escape Game</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <title>Platforming Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      background-color: #000;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="600" height="400"></canvas>
-  <script src="script.js"></script>
-</body>
-</html>
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    var canvas = document.getElementById("gameCanvas");
+    var ctx = canvas.getContext("2d");
 
-canvas {
-  background-color: #000;
-  display: block;
-  margin: 0 auto;
-}
-var canvas = document.getElementById("gameCanvas");
-var ctx = canvas.getContext("2d");
+    // Game state
+    var gameState = {
+      currentLevel: 1,
+      levels: [],
+    };
 
-// Coin properties
-var coin = {
-  x: 50,
-  y: canvas.height / 2,
-  radius: 20,
-  speed: 3,
-  dx: 0,
-  dy: 0,
-};
+    // Player properties
+    var player = {
+      x: 50,
+      y: canvas.height - 100,
+      width: 40,
+      height: 60,
+      speed: 5,
+      jumpHeight: 12,
+      isJumping: false,
+      dy: 0,
+    };
 
-// Cheese properties
-var cheeses = [];
-var numCheeses = 10;
+    // Level properties
+    gameState.levels.push(
+      [
+        // Level 1
+        { x: 100, y: canvas.height - 80, width: 200, height: 20 },
+        { x: 400, y: canvas.height - 160, width: 200, height: 20 },
+        { x: 700, y: canvas.height - 240, width: 200, height: 20 },
+      ],
+      [
+        // Level 2
+        { x: 100, y: canvas.height - 80, width: 200, height: 20 },
+        { x: 400, y: canvas.height - 200, width: 200, height: 20 },
+        { x: 700, y: canvas.height - 320, width: 200, height: 20 },
+      ],
+      [
+        // Level 3
+        { x: 100, y: canvas.height - 160, width: 200, height: 20 },
+        { x: 400, y: canvas.height - 240, width: 200, height: 20 },
+        { x: 700, y: canvas.height - 320, width: 200, height: 20 },
+      ]
+    );
 
-for (var i = 0; i < numCheeses; i++) {
-  cheeses.push({
-    x: Math.random() * (canvas.width - 40) + 20,
-    y: Math.random() * (canvas.height - 40) + 20,
-    width: 20,
-    height: 20,
-    collected: false,
-  });
-}
-
-// Event listeners for arrow keys
-document.addEventListener("keydown", function (event) {
-  if (event.key === "ArrowUp") {
-    coin.dy = -coin.speed;
-  } else if (event.key === "ArrowDown") {
-    coin.dy = coin.speed;
-  } else if (event.key === "ArrowLeft") {
-    coin.dx = -coin.speed;
-  } else if (event.key === "ArrowRight") {
-    coin.dx = coin.speed;
-  }
-});
-
-document.addEventListener("keyup", function (event) {
-  if (
-    event.key === "ArrowUp" ||
-    event.key === "ArrowDown" ||
-    event.key === "ArrowLeft" ||
-    event.key === "ArrowRight"
-  ) {
-    coin.dx = 0;
-    coin.dy = 0;
-  }
-});
-
-// Update game objects
-function update() {
-  coin.x += coin.dx;
-  coin.y += coin.dy;
-
-  // Check collision with the canvas boundaries
-  if (coin.x - coin.radius < 0 || coin.x + coin.radius > canvas.width) {
-    coin.dx = -coin.dx;
-  }
-
-  if (coin.y - coin.radius < 0 || coin.y + coin.radius > canvas.height) {
-    coin.dy = -coin.dy;
-  }
-
-  // Check collision with cheeses
-  for (var i = 0; i < cheeses.length; i++) {
-    var cheese = cheeses[i];
-    if (!cheese.collected) {
-      if (
-        coin.x < cheese.x + cheese.width &&
-        coin.x + coin.radius > cheese.x &&
-        coin.y < cheese.y + cheese.height &&
-        coin.y + coin.radius > cheese.y
-      ) {
-        cheese.collected = true;
-        numCheeses--;
-
-        if (numCheeses === 0) {
-          alert("You win!");
-          location.reload();
+    // Event listeners for movement and jumping
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "a") {
+        player.dx = -player.speed;
+      } else if (event.key === "d") {
+        player.dx = player.speed;
+      } else if (event.key === " ") {
+        if (!player.isJumping) {
+          player.isJumping = true;
+          player.dy = -player.jumpHeight;
         }
       }
-    }
-  }
-}
+    });
 
-// Render game objects
-function draw() {
-  ctx.clearRect(0, 0,
+    document.addEventListener("keyup", function (event) {
+      if (event.key === "a" || event.key === "d") {
+        player.dx = 0;
+      }
+    });
+
+    // Check collision between player and platforms
+    function checkCollision() {
+      var currentLevel = gameState.levels[gameState.currentLevel - 1];
+
+      for (var i = 0; i < currentLevel.length; i++) {
+        var platform = currentLevel[i];
+        if (
+          player.x < platform.x + platform.width &&
+          player.x + player.width > platform.x &&
+          player.y < platform.y + platform.height &&
+          player.y + player.height > platform.y
+        ) {
+          // Player collided with a platform
+          if (player.dy > 0) {
+            // Falling down, stop jumping
