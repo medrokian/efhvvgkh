@@ -1,75 +1,110 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    canvas {
-      border: 1px solid black;
-    }
-  </style>
+    <title>Coin Escape Game</title>
+    <style>
+        #game {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border: 1px solid black;
+        }
+
+        #coin {
+            position: absolute;
+            top: 180px;
+            left: 180px;
+            width: 40px;
+            height: 40px;
+            background-color: gold;
+            border-radius: 50%;
+        }
+
+        .cheese {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: yellow;
+            border-radius: 50%;
+        }
+
+        #pizza {
+            position: absolute;
+            top: 80px;
+            left: 80px;
+            width: 60px;
+            height: 60px;
+            background-image: url('pizza.png');
+            background-size: cover;
+        }
+    </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="400" height="400"></canvas>
-  <script>
-    // Get the canvas element
-    const canvas = document.getElementById("gameCanvas");
-    const context = canvas.getContext("2d");
+    <h1>Coin Escape Game</h1>
+    <div id="game">
+        <div id="coin"></div>
+        <div id="pizza"></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+    </div>
 
-    // Player object
-    const player = {
-      x: 200,
-      y: 200,
-      width: 20,
-      height: 20,
-      color: "blue",
-      speed: 4,
-    };
+    <script>
+        const coin = document.getElementById("coin");
+        const game = document.getElementById("game");
+        const cheeses = document.getElementsByClassName("cheese");
+        const pizza = document.getElementById("pizza");
 
-    // Update player position
-    function updatePlayer() {
-      if (keys.ArrowUp && player.y > 0) {
-        player.y -= player.speed;
-      }
-      if (keys.ArrowDown && player.y + player.height < canvas.height) {
-        player.y += player.speed;
-      }
-      if (keys.ArrowLeft && player.x > 0) {
-        player.x -= player.speed;
-      }
-      if (keys.ArrowRight && player.x + player.width < canvas.width) {
-        player.x += player.speed;
-      }
-    }
+        let score = 0;
+        const winningScore = 10;
 
-    // Draw player on the canvas
-    function drawPlayer() {
-      context.fillStyle = player.color;
-      context.fillRect(player.x, player.y, player.width, player.height);
-    }
+        function checkCollision(element1, element2) {
+            const rect1 = element1.getBoundingClientRect();
+            const rect2 = element2.getBoundingClientRect();
 
-    // Handle key events
-    const keys = {};
-    window.addEventListener("keydown", (event) => {
-      keys[event.key] = true;
-    });
-    window.addEventListener("keyup", (event) => {
-      delete keys[event.key];
-    });
+            return (
+                rect1.x < rect2.x + rect2.width &&
+                rect1.x + rect1.width > rect2.x &&
+                rect1.y < rect2.y + rect2.height &&
+                rect1.y + rect1.height > rect2.y
+            );
+        }
 
-    // Game loop
-    function gameLoop() {
-      // Clear the canvas
-      context.clearRect(0, 0, canvas.width, canvas.height);
+        function updateScore() {
+            if (score === winningScore) {
+                alert("You won! You escaped the pizza with 10 blocks of cheese!");
+                resetGame();
+            }
+        }
 
-      // Update and draw player
-      updatePlayer();
-      drawPlayer();
+        function movePizza() {
+            const randomX = Math.floor(Math.random() * (game.offsetWidth - pizza.offsetWidth));
+            const randomY = Math.floor(Math.random() * (game.offsetHeight - pizza.offsetHeight));
+            pizza.style.left = `${randomX}px`;
+            pizza.style.top = `${randomY}px`;
+        }
 
-      // Request next frame
-      requestAnimationFrame(gameLoop);
-    }
+        function resetGame() {
+            score = 0;
+            updateScore();
+            movePizza();
+            for (let i = 0; i < cheeses.length; i++) {
+                cheeses[i].style.display = "block";
+            }
+        }
 
-    // Start the game loop
-    gameLoop();
-  </script>
-</body>
-</html>
+        function gameLoop() {
+            document.addEventListener("keydown", function (event) {
+                const coinRect = coin.getBoundingClientRect();
+                const gameRect = game.getBoundingClientRect();
+
+                if (event.key === "ArrowUp" && coinRect.top > gameRect.top) {
+                    coin.style.top = `${coinRect.top - 10}px`;
+                }
+                if (event.key ===
