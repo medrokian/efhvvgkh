@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <script>
+    // Get the canvas element
+    const canvas = document.getElementById("gameCanvas");
+    const context = canvas.getContext("2d");
+
+    // Player object
+    const player = {
+      x: 200,
+      y: 200,
+      width: 20,
+      height: 20,
+      color: "blue",
+      speed: 4,
+    };
+
+    // Update player position
+    function updatePlayer() {
+      if (keys.ArrowUp && player.y > 0) {
+        player.y -= player.speed;
+      }
+      if (keys.ArrowDown && player.y + player.height < canvas.height) {
+        player.y += player.speed;
+      }
+      if (keys.ArrowLeft && player.x > 0) {
+        player.x -= player.speed;
+      }
+      if (keys.ArrowRight && player.x + player.width < canvas.width) {
+        player.x += player.speed;
+      }
+    }
+
+    // Draw player on the canvas
+    function drawPlayer() {
+      context.fillStyle = player.color;
+      context.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    // Handle key events
+    const keys = {};
+    window.addEventListener("keydown", (event) => {
+      keys[event.key] = true;
+    });
+    window.addEventListener("keyup", (event) => {
+      delete keys[event.key];
+    });
+
+    // Game loop
+    function gameLoop() {
+      // Clear the canvas
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Update and draw player
+      updatePlayer();
+      drawPlayer();
+
+      // Request next frame
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Start the game loop
+    gameLoop();
+  </script>
+</body>
+</html>
