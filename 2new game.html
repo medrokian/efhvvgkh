@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Legend of Zelda Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      background-color: #000;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    var canvas = document.getElementById("gameCanvas");
+    var ctx = canvas.getContext("2d");
+
+    // Game state
+    var gameState = {
+      currentLevel: 1,
+      levels: [],
+      itemsCollected: 0,
+      winMessage: "Congratulations! You've collected all the items and won the game!",
+    };
+
+    // Player properties
+    var player = {
+      x: 50,
+      y: 50,
+      width: 40,
+      height: 40,
+      speed: 5,
+    };
+
+    // Levels and collectible items
+    gameState.levels.push(
+      [
+        // Level 1
+        { x: 100, y: 100, width: 20, height: 20, collected: false },
+      ],
+      [
+        // Level 2
+        { x: 200, y: 200, width: 20, height: 20, collected: false },
+      ]
+    );
+
+    // Event listener for player movement
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "ArrowUp") {
+        player.y -= player.speed;
+      } else if (event.key === "ArrowDown") {
+        player.y += player.speed;
+      } else if (event.key === "ArrowLeft") {
+        player.x -= player.speed;
+      } else if (event.key === "ArrowRight") {
+        player.x += player.speed;
+      }
+
+      checkItemCollision();
+    });
+
+    // Check collision with collectible items
+    function checkItemCollision() {
+      var currentLevel = gameState.levels[gameState.currentLevel - 1];
+
+      for (var i = 0; i < currentLevel.length; i++) {
+        var item = currentLevel[i];
+        if (
+          player.x < item.x + item.width &&
+          player.x + player.width > item.x &&
+          player.y < item.y + item.height &&
+          player.y + player.height > item.y &&
+          !item.collected
+        ) {
+          item.collected = true;
+          gameState.itemsCollected++;
+
+          if (gameState.itemsCollected === 2) {
+            alert(gameState.winMessage);
+          }
+        }
+      }
+    }
+
+    // Game loop
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw player
+      ctx.fillStyle = "blue";
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+
+      // Draw collectible items
+      var currentLevel = gameState.levels[gameState.currentLevel - 1];
+      ctx.fillStyle = "yellow";
+      for (var i = 0; i < currentLevel.length; i++) {
+        var item = currentLevel[i];
+        if (!item.collected) {
+          ctx.fillRect(item.x, item.y, item.width, item.height);
+        }
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    update();
+  </script>
+</body>
+</html
