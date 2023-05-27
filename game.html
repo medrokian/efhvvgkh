@@ -38,6 +38,7 @@
       jumpHeight: 12,
       isJumping: false,
       dy: 0,
+      dx: 0,
     };
 
     // Level properties
@@ -97,3 +98,4 @@
           // Player collided with a platform
           if (player.dy > 0) {
             // Falling down, stop jumping
+            player.isJump
