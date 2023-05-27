@@ -1,110 +1,118 @@
- <!DOCTYPE html>
+
+Now it’s time to go Crazy
+12:21 PM (0 minutes ago)
+to me
+
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Coin Escape Game</title>
-    <style>
-        #game {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            border: 1px solid black;
-        }
-
-        #coin {
-            position: absolute;
-            top: 180px;
-            left: 180px;
-            width: 40px;
-            height: 40px;
-            background-color: gold;
-            border-radius: 50%;
-        }
-
-        .cheese {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background-color: yellow;
-            border-radius: 50%;
-        }
-
-        #pizza {
-            position: absolute;
-            top: 80px;
-            left: 80px;
-            width: 60px;
-            height: 60px;
-            background-image: url('pizza.png');
-            background-size: cover;
-        }
-    </style>
+  <title>Coin Escape Game</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <h1>Coin Escape Game</h1>
-    <div id="game">
-        <div id="coin"></div>
-        <div id="pizza"></div>
-        <div class="cheese"></div>
-        <div class="cheese"></div>
-        <div class="cheese"></div>
-        <div class="cheese"></div>
-        <div class="cheese"></div>
-        <div class="cheese"></div>
-        <div class="cheese"></div>
-        <div class="cheese"></div>
-        <div class="cheese"></div>
-    </div>
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
+  <script src="script.js"></script>
+</body>
+</html>
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
 
-    <script>
-        const coin = document.getElementById("coin");
-        const game = document.getElementById("game");
-        const cheeses = document.getElementsByClassName("cheese");
-        const pizza = document.getElementById("pizza");
+canvas {
+  background-color: #000;
+  display: block;
+  margin: 0 auto;
+}
+var canvas = document.getElementById("gameCanvas");
+var ctx = canvas.getContext("2d");
 
-        let score = 0;
-        const winningScore = 10;
+// Coin properties
+var coin = {
+  x: 50,
+  y: canvas.height / 2,
+  radius: 20,
+  speed: 3,
+  dx: 0,
+  dy: 0,
+};
 
-        function checkCollision(element1, element2) {
-            const rect1 = element1.getBoundingClientRect();
-            const rect2 = element2.getBoundingClientRect();
+// Cheese properties
+var cheeses = [];
+var numCheeses = 10;
 
-            return (
-                rect1.x < rect2.x + rect2.width &&
-                rect1.x + rect1.width > rect2.x &&
-                rect1.y < rect2.y + rect2.height &&
-                rect1.y + rect1.height > rect2.y
-            );
+for (var i = 0; i < numCheeses; i++) {
+  cheeses.push({
+    x: Math.random() * (canvas.width - 40) + 20,
+    y: Math.random() * (canvas.height - 40) + 20,
+    width: 20,
+    height: 20,
+    collected: false,
+  });
+}
+
+// Event listeners for arrow keys
+document.addEventListener("keydown", function (event) {
+  if (event.key === "ArrowUp") {
+    coin.dy = -coin.speed;
+  } else if (event.key === "ArrowDown") {
+    coin.dy = coin.speed;
+  } else if (event.key === "ArrowLeft") {
+    coin.dx = -coin.speed;
+  } else if (event.key === "ArrowRight") {
+    coin.dx = coin.speed;
+  }
+});
+
+document.addEventListener("keyup", function (event) {
+  if (
+    event.key === "ArrowUp" ||
+    event.key === "ArrowDown" ||
+    event.key === "ArrowLeft" ||
+    event.key === "ArrowRight"
+  ) {
+    coin.dx = 0;
+    coin.dy = 0;
+  }
+});
+
+// Update game objects
+function update() {
+  coin.x += coin.dx;
+  coin.y += coin.dy;
+
+  // Check collision with the canvas boundaries
+  if (coin.x - coin.radius < 0 || coin.x + coin.radius > canvas.width) {
+    coin.dx = -coin.dx;
+  }
+
+  if (coin.y - coin.radius < 0 || coin.y + coin.radius > canvas.height) {
+    coin.dy = -coin.dy;
+  }
+
+  // Check collision with cheeses
+  for (var i = 0; i < cheeses.length; i++) {
+    var cheese = cheeses[i];
+    if (!cheese.collected) {
+      if (
+        coin.x < cheese.x + cheese.width &&
+        coin.x + coin.radius > cheese.x &&
+        coin.y < cheese.y + cheese.height &&
+        coin.y + coin.radius > cheese.y
+      ) {
+        cheese.collected = true;
+        numCheeses--;
+
+        if (numCheeses === 0) {
+          alert("You win!");
+          location.reload();
         }
+      }
+    }
+  }
+}
 
-        function updateScore() {
-            if (score === winningScore) {
-                alert("You won! You escaped the pizza with 10 blocks of cheese!");
-                resetGame();
-            }
-        }
-
-        function movePizza() {
-            const randomX = Math.floor(Math.random() * (game.offsetWidth - pizza.offsetWidth));
-            const randomY = Math.floor(Math.random() * (game.offsetHeight - pizza.offsetHeight));
-            pizza.style.left = `${randomX}px`;
-            pizza.style.top = `${randomY}px`;
-        }
-
-        function resetGame() {
-            score = 0;
-            updateScore();
-            movePizza();
-            for (let i = 0; i < cheeses.length; i++) {
-                cheeses[i].style.display = "block";
-            }
-        }
-
-        function gameLoop() {
-            document.addEventListener("keydown", function (event) {
-                const coinRect = coin.getBoundingClientRect();
-                const gameRect = game.getBoundingClientRect();
-
-                if (event.key === "ArrowUp" && coinRect.top > gameRect.top) {
-                    coin.style.top = `${coinRect.top - 10}px`;
-                }
-                if (event.key ===
+// Render game objects
+function draw() {
+  ctx.clearRect(0, 0,
